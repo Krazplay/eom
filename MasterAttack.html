@@ -1,0 +1,243 @@
+<!DocType html>
+    <head><meta charset="UTF-8">
+	
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="crossorigin="anonymous"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/cr-1.5.3/fh-3.1.8/rr-1.2.7/datatables.min.css"/>
+		<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.24/b-1.7.0/b-colvis-1.7.0/b-html5-1.7.0/cr-1.5.3/fh-3.1.8/rr-1.2.7/datatables.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="eom_tables.css"/>
+		
+		<script type="text/javascript" src="kraz-eom.js"></script>
+		<script type="text/javascript" src="kraz-eom-tables.js"></script>
+		
+		<title>EoM MasterAttack</title>
+		
+		<script>
+			array_hidecol = get_columns_to_hide(); // From either the url or localstorage
+			console.log(array_hidecol);
+			let promiseList = [];
+			// Download json from github repository
+			const GIT_EOM = 'https://raw.githubusercontent.com/Coded-Bots/ECHOES-of-MANA-Datamining/main/';
+			// Data required for this table
+			let files_required = [	GIT_EOM+'Master/MasterAttack.json',
+									GIT_EOM+'Master/MasterAttackLabelCharacter.json',
+									GIT_EOM+'Master/MasterCharacter.json',
+									GIT_EOM+'Master/MasterIdentity.json'
+								]
+			files_required.forEach(file => {
+				promiseList.push($.getJSON(file, function(data){
+					console.log("Loaded: " + file);
+				}));
+			});
+
+			// All promises are completed
+			Promise.all(promiseList).then(values => {
+				console.log("All promises finished");
+				// values have the same order the promises were pushed in the list
+				masterAttack = parse_EoM_json(values[0], "MasterAttackId");
+				mapAtkID_CharacID = parse_masterAttackLabel(values[1]);
+				masterCharacter = parse_EoM_json(values[2], "MasterCharacterId");
+				masterIdentity = parse_EoM_json(values[3], "MasterIdentityId");
+				
+				// data for the datatable
+				data_table = get_datatable_MasterAttack();
+				// The data is ready, show the datatable
+				create_datatable();
+				
+				// Setup - clone the thead of the table, will be used for individual filter input
+				// Must do it here or else there's a width issue and scrolling appear
+				$('#myTable thead tr').clone(true).appendTo( '#myTable thead' );
+				$('#myTable thead tr:eq(1) th').each( function (i) {
+					$(this).css("background-image", "none");
+					$(this).css("writing-mode", "horizontal-tb");
+					$(this).off();
+					$(this).html( '<input type="text" placeholder="Filter..." />' );
+					// Need to use $(this).parent().index() and not i, columns can be reordered
+					$( 'input', this ).on( 'keyup change', delay(function () {
+						// Change search setting depending on regex checbox
+						let is_regex = $('input[name=regex_search]').is(':checked');
+						table.column( $(this).parent().index()+':visible' )
+								.search( this.value, is_regex, !is_regex ).draw(); // value, regex?, smart search?
+						refresh_url_span();
+					}, 700));
+				});
+				
+				prefill_filters_via_url(); // write down url filter params in filter input fields
+				attach_functions_on_events();
+				set_default_val_dropdown();
+			});
+			
+			// Create the datatable, must be called after getting the data
+			function create_datatable() {
+				console.log("DataTable Go !");
+				table = $('#myTable').DataTable( {
+					"data": data_table,
+					"order": [], // no sorting at init
+					paging: false,
+					dom: 'B<"clear">lPfritp',
+					buttons: [ 'copy', 'csv',
+						{
+							extend: 'colvis',
+							columnText: function ( dt, idx, title ) {
+								return (idx+1)+': '+title;
+							}
+						},
+						{
+							extend: 'columnVisibility',
+							text: 'Show all',
+							visibility: true
+						},
+						{
+							extend: 'columnVisibility',
+							text: 'Hide all',
+							visibility: false
+						}],
+					orderCellsTop: true,
+					fixedHeader: {
+						header: true,
+						footer: false
+					},
+					colReorder: true,
+					rowReorder: true,
+					rowReorder: { dataSrc: 'line_id' },
+					autoWidth: false,
+					columnDefs: [
+						{ visible: false, targets: array_hidecol },
+						{ targets: '_all', className: "centertext", defaultContent: "" }
+					],
+					select: {
+						style:    'os',
+						selector: 'td:first-child'
+					},
+					"columns": [
+						{ "data": "line_id" },
+						{ "data": "name" },
+						{ "data": "MasterCharacterId" },
+						{ "data": "AttackCategory" },
+						{ "data": "AttackGroup" },
+						{ "data": "ChargePoint" },
+						{ "data": "CurrentHpRatioAttack" },
+						{ "data": "DamageRatio" },
+						{ "data": "DownDamage" },
+						{ "data": "DownImpactX" },
+						{ "data": "DownImpactY" },
+						{ "data": "DownSourceHitstopTime" },
+						{ "data": "DownTargetHitstopTime" },
+						{ "data": "FixedHpAttack" },
+						{ "data": "GuardDamage" },
+						{ "data": "HateRatio" },
+						{ "data": "HitEffectId" },
+						{ "data": "IgnoreSuperArmor" },
+						{ "data": "ImpactType" },
+						{ "data": "ImpulseGain" },
+						{ "data": "KnockBackDamage" },
+						{ "data": "KnockBackImpactX" },
+						{ "data": "MasterAttackId" },
+						{ "data": "MasterEfficacyGroupId" },
+						{ "data": "ReleaseLabel" },
+						{ "data": "SkillNum" },
+						{ "data": "SourceHitstopTime" },
+						{ "data": "Stomping" },
+						{ "data": "TargetHitstopTime" },
+						{ "data": "WeaponType" }
+					],
+					// Annoying, filter doesn't apply at initialization, need to redraw table after 1 ms
+					initComplete: function () {
+						const dt = this.api();
+						window.setTimeout(function () {
+							dt.draw();
+						}, 1);
+					}
+				});
+				
+				/* Custom filtering function for owned checkboxes */
+				$.fn.dataTable.ext.search.push(
+					function( settings, data, dataIndex ) {
+						var bestv = data[1]; // max awk filter use the bestv column, 1=best version currently obtainable
+						var iname = data[2]; // owned filter use a localstorage variable with the iname
+						if ((localStorage.getItem("esper_filter_owned") == "true") && (localStorage.getItem(iname) != "true")) return false;
+						else if ((localStorage.getItem("esper_filter_maxawk") == "true") && (bestv == "0")) return false;
+						else return true;
+					}
+				);
+				
+				// Manage the saving and loading of the checkboxes states in localStorage
+				load_checkboxes_state();
+				add_event_save_checkbox();
+				
+				// If valid number in localStorage, resize the memo column
+				var local_memo_size = localStorage.getItem("memo_size_esper");
+				if (!isNaN(parseInt(local_memo_size))) {
+					$( ".thmemo" ).css({"min-width": local_memo_size+"px"});
+					$( ".thmemo" ).css({"max-width": local_memo_size+"px"});
+				};
+			}
+		</script>
+	</head>
+	<style>
+		table.dataTable {
+			white-space: normal;
+		}
+		.quickfix1 {
+			min-width: 230px;
+		}
+		.quickfix2 {
+			min-width: 100px;
+		}
+	</style>
+	<body>
+		<span>MasterAttack table - <a href="./index.html">Return to index</a></span> - <span id="table_url"></span>
+		<span>
+			Language:
+			<select name="language" id="language" onchange="languageChange(this.value)">
+			</select>
+			Version:
+			<select name="version" id="version" onchange="versionChange(this.value)">
+			</select>
+		</span>
+		<br/><br/>
+		<table id="myTable" class="display">
+			<input type="checkbox" name="regex_search" id="regex_search"></input>
+			<label for="regex_search">Use regex in column filters instead of smart search (allow things like "Ifrit|Shiva")</label>
+			<span> / Custom memo size: <input type="text" id="memo_size_esper" size="1" onkeyup="memoSizeChange(event)"></input>
+			<thead>
+				<tr>
+					<th>-</th>
+					<th>[Name]</th>
+					<th>[MasterCharacterId]</th>
+					<th>AttackCategory</th>
+					<th>AttackGroup</th>
+					<th>ChargePoint</th>
+					<th>CurrentHpRatioAttack</th>
+					<th>DamageRatio</th>
+					<th>DownDamage</th>
+					<th>DownImpactX</th>
+					<th>DownImpactY</th>
+					<th>DownSourceHitstopTime</th>
+					<th>DownTargetHitstopTime</th>
+					<th>FixedHpAttack</th>
+					<th>GuardDamage</th>
+					<th>HateRatio</th>
+					<th>HitEffectId</th>
+					<th>IgnoreSuperArmor</th>
+					<th>ImpactType</th>
+					<th>ImpulseGain</th>
+					<th>KnockBackDamage</th>
+					<th>KnockBackImpactX</th>
+					<th>MasterAttackId</th>
+					<th>MasterEfficacyGroupId</th>
+					<th>ReleaseLabel</th>
+					<th>SkillNum</th>
+					<th>SourceHitstopTime</th>
+					<th>Stomping</th>
+					<th>TargetHitstopTime</th>
+					<th>WeaponType</th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+			<tfoot>
+			</tfoot>
+		</table>
+	</body>
+	
+</html>
