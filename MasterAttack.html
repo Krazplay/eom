@@ -152,11 +152,7 @@
 				/* Custom filtering function for owned checkboxes */
 				$.fn.dataTable.ext.search.push(
 					function( settings, data, dataIndex ) {
-						var bestv = data[1]; // max awk filter use the bestv column, 1=best version currently obtainable
-						var iname = data[2]; // owned filter use a localstorage variable with the iname
-						if ((localStorage.getItem("esper_filter_owned") == "true") && (localStorage.getItem(iname) != "true")) return false;
-						else if ((localStorage.getItem("esper_filter_maxawk") == "true") && (bestv == "0")) return false;
-						else return true;
+						return true;
 					}
 				);
 				
