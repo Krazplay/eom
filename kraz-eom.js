@@ -10,6 +10,38 @@ function parse_EoM_json(data, key_id) {
 	return mapData;
 }
 
+function parse_L10Njson_skill(data, key_id) {
+	let mapData = new Map();
+	data.forEach((item) => {
+		if (item["ColumnName"] == "description") {
+			mapData.get(item[key_id])["description"] = item["text"];
+		}
+		else {
+			mapData.set(item[key_id], item);
+		}
+	});
+	return mapData;
+}
+
+function parse_L10Njson_questchapter(data, key_id) {
+	let mapData = new Map();
+	data.forEach((item) => {
+		if (mapData.has(item[key_id]) == false) { mapData.set(item[key_id], {}) };
+		
+		if (item["ColumnName"] == "description") {
+			mapData.get(item[key_id])["description"] = item["Text"];
+		}
+		else if (item["ColumnName"] == "tips") {
+			mapData.get(item[key_id])["tips"] = item["Text"];
+		}
+		else {
+			mapData.get(item[key_id])["ChapterName"] = item["Text"];
+			mapData.get(item[key_id])["LocalizationTargetId"] = item["LocalizationTargetId"];
+		}
+	});
+	return mapData;
+}
+
 function parse_masterAttackLabel(data, mapData = new Map()) {
 	//let mapData = new Map();
 	let regex = /^AttackLabel/;

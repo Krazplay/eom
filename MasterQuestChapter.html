@@ -9,7 +9,7 @@
 		<script type="text/javascript" src="kraz-eom.js"></script>
 		<script type="text/javascript" src="kraz-eom-tables.js"></script>
 		
-		<title>EoM MasterAttack</title>
+		<title>EoM MasterQuestChapter</title>
 		
 		<script>
 			array_hidecol = get_columns_to_hide(); // From either the url or localstorage
@@ -17,11 +17,8 @@
 			// Download json from github repository
 			const GIT_EOM = 'https://raw.githubusercontent.com/Coded-Bots/ECHOES-of-MANA-Datamining/main/';
 			// Data required for this table
-			let files_required = [	GIT_EOM+'Master/MasterAttack.json',
-									GIT_EOM+'Master/MasterAttackLabelCharacter.json',
-									GIT_EOM+'Master/MasterCharacter.json',
-									GIT_EOM+'Master/MasterIdentity.json',
-									GIT_EOM+'En/L10NSkill.json'
+			let files_required = [	GIT_EOM+'Master/MasterQuestChapter.json',
+									GIT_EOM+'En/L10NQuestChapter.json'
 								]
 			files_required.forEach(file => {
 				promiseList.push($.getJSON(file, function(data){
@@ -33,14 +30,11 @@
 			Promise.all(promiseList).then(values => {
 				console.log("All promises finished");
 				// values have the same order the promises were pushed in the list
-				masterAttack = parse_EoM_json(values[0], "MasterAttackId");
-				mapAtkID_CharacID = parse_masterAttackLabel(values[1]);
-				masterCharacter = parse_EoM_json(values[2], "MasterCharacterId");
-				masterIdentity = parse_EoM_json(values[3], "MasterIdentityId");
-				l10NSkill = parse_L10Njson_skill(values[4], "LocalizationTargetId");
+				masterQuestChapter = parse_EoM_json(values[0], "MasterQuestChapterId");
+				l10NQuestChapter = parse_L10Njson_questchapter(values[1], "LocalizationTargetId");
 				
 				// data for the datatable
-				data_table = get_datatable_MasterAttack();
+				data_table = get_datatable_MasterQuestChapter();
 				// The data is ready, show the datatable
 				create_datatable();
 				
@@ -111,35 +105,22 @@
 					},
 					"columns": [
 						{ "data": "line_id" },
-						{ "data": "skillName" },
-						{ "data": "weaponName" },
-						{ "data": "AttackCategory" },
-						{ "data": "AttackGroup" },
-						{ "data": "ChargePoint" },
-						{ "data": "CurrentHpRatioAttack" },
-						{ "data": "DamageRatio" },
-						{ "data": "KnockBackDamage" },
-						{ "data": "KnockBackImpactX" },
-						{ "data": "DownDamage" },
-						{ "data": "DownImpactX" },
-						{ "data": "DownImpactY" },
-						{ "data": "DownSourceHitstopTime" },
-						{ "data": "DownTargetHitstopTime" },
-						{ "data": "FixedHpAttack" },
-						{ "data": "GuardDamage" },
-						{ "data": "HateRatio" },
-						{ "data": "HitEffectId" },
-						{ "data": "IgnoreSuperArmor" },
-						{ "data": "ImpactType" },
-						{ "data": "ImpulseGain" },
-						{ "data": "MasterAttackId" },
-						{ "data": "MasterEfficacyGroupId" },
-						{ "data": "ReleaseLabel" },
-						{ "data": "SkillNum" },
-						{ "data": "SourceHitstopTime" },
-						{ "data": "Stomping" },
-						{ "data": "TargetHitstopTime" },
-						{ "data": "WeaponType" }
+						{ "data": "chapterName" },
+						{ "data": "tips" },
+						{ "data": "MasterQuestChapterId" },
+						{ "data": "RewardUserExp" },
+						{ "data": "RewardUnitExp" },
+						{ "data": "RewardGold" },
+						{ "data": "ConsumeStamina" },
+						{ "data": "TimeLimit" },
+						{ "data": "RecommendCombatPower" },
+						{ "data": "RecommendCombatPowerReachedCount" },
+						{ "data": "RecommendTotalCombatPower" },
+						{ "data": "MultiPlayerCount" },
+						{ "data": "Difficulty" },
+						{ "data": "ChapterNum" },
+						{ "data": "ChapterType" },
+						{ "data": "ReleaseLabel" }
 					],
 					// Annoying, filter doesn't apply at initialization, need to redraw table after 1 ms
 					initComplete: function () {
@@ -182,7 +163,7 @@
 		}
 	</style>
 	<body>
-		<span>MasterAttack table - <a href="./index.html">Return to index</a></span> - <span id="table_url"></span>
+		<span>MasterQuestChapter table - <a href="./index.html">Return to index</a></span> - <span id="table_url"></span>
 		<span>
 			Language:
 			<select name="language" id="language" onchange="languageChange(this.value)">
@@ -199,35 +180,22 @@
 			<thead>
 				<tr>
 					<th>-</th>
-					<th>[SkillName]</th>
-					<th>[WeaponName]</th>
-					<th>AttackCategory</th>
-					<th>AttackGroup</th>
-					<th>ChargePoint</th>
-					<th>CurrentHpRatioAttack</th>
-					<th>DamageRatio</th>
-					<th>KnockBackDamage</th>
-					<th>KnockBackImpactX</th>
-					<th>DownDamage</th>
-					<th>DownImpactX</th>
-					<th>DownImpactY</th>
-					<th>DownSourceHitstopTime</th>
-					<th>DownTargetHitstopTime</th>
-					<th>FixedHpAttack</th>
-					<th>GuardDamage</th>
-					<th>HateRatio</th>
-					<th>HitEffectId</th>
-					<th>IgnoreSuperArmor</th>
-					<th>ImpactType</th>
-					<th>ImpulseGain</th>
-					<th>MasterAttackId</th>
-					<th>MasterEfficacyGroupId</th>
+					<th>[ChapterName]</th>
+					<th>[Tips]</th>
+					<th>masterQuestChapterId</th>
+					<th>RewardUserExp</th>
+					<th>RewardUnitExp</th>
+					<th>RewardGold</th>
+					<th>ConsumeStamina</th>
+					<th>TimeLimit</th>
+					<th>RecommendCombatPower</th>
+					<th>RecommendCombatPowerReachedCount</th>
+					<th>RecommendTotalCombatPower</th>
+					<th>MultiPlayerCount</th>
+					<th>Difficulty</th>
+					<th>ChapterNum</th>
+					<th>ChapterType</th>
 					<th>ReleaseLabel</th>
-					<th>SkillNum</th>
-					<th>SourceHitstopTime</th>
-					<th>Stomping</th>
-					<th>TargetHitstopTime</th>
-					<th>WeaponType</th>
 				</tr>
 			</thead>
 			<tbody>

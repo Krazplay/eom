@@ -5,6 +5,8 @@
 	get_datatables_xxx => Create an array of objects to be used as data for datatables
 */
 
+weaponTypeName = ["-","Axe","Boomerang","Bow","Flail","Glove","???","Dagger","Lance","Staff","Sword"]
+
 /*
 *   ====================            TABLE            ====================
 *	====================         MasterAttack        ====================
@@ -22,13 +24,22 @@ function get_datatable_MasterAttack() {
 			line[stat] = value;
 		}
 		
-		// Get CharacterID from AttackLabelID
-		let masterCharacterID = mapAtkID_CharacID.get(iname);
-		line["MasterCharacterId"] = masterCharacterID;
+		// Get CharacterID from AttackLabelID, not good
+		//let masterCharacterID = mapAtkID_CharacID.get(iname);
+		//line["MasterCharacterId"] = masterCharacterID;
 		// try to get a name from somewhere
-		if (masterCharacterID != null) {
-			let masterIdentityId = masterCharacter.get(masterCharacterID)["MasterIdentityId"];
-			line["name"] = masterIdentity.get(masterIdentityId)["NameEn"];
+		//if (masterCharacterID != null) {
+		//	let masterIdentityId = masterCharacter.get(masterCharacterID)["MasterIdentityId"];
+		//	line["name"] = masterIdentity.get(masterIdentityId)["NameEn"];
+		//}
+		line["DamageRatio"] = line["DamageRatio"] / 100
+		line["weaponName"] = weaponTypeName[item["WeaponType"]];
+		
+		// Try to get skill name
+		let shortMastAtckId = item["MasterAttackId"].toString().substring(1);
+		let skill = l10NSkill.get(parseInt('3'+shortMastAtckId));
+		if (skill != null) {
+			line["skillName"] = skill["Text"];
 		}
 		
 		line["line_id"] = line_id++;
@@ -39,7 +50,49 @@ function get_datatable_MasterAttack() {
 }
 
 
+function get_datatable_MasterEnemyStatus() {
+	
+	let line_id = 1;
+	result = [];
+	// Loop on all masterEnemyStatus objects
+	for (let [iname, item] of masterEnemyStatus) {
+		let line = {};
+		// Loop on parameters of masterAttack
+		for (const [stat, value] of Object.entries(item)) {
+			line[stat] = value;
+		}
+		let enemyID = item["MasterEnemyStatusId"].toString().substring(2, 9); // 715001001001 => 5001001
+		line["NameEn"] = masterEnemy.get(parseInt("70020"+enemyID))["NameEn"];
+		
+		line["line_id"] = line_id++;
+		result.push(line);
+	}
+	
+	return result;
+}
 
+
+function get_datatable_MasterQuestChapter() {
+
+	let line_id = 1;
+	result = [];
+	// Loop on all objects
+	for (let [iname, item] of masterQuestChapter) {
+		let line = {};
+		// Loop on parameters
+		for (const [stat, value] of Object.entries(item)) {
+			line[stat] = value;
+		}
+		
+		line["chapterName"] = l10NQuestChapter.get(item["MasterQuestChapterId"])["ChapterName"];
+		line["tips"] = l10NQuestChapter.get(item["MasterQuestChapterId"])["tips"];
+		
+		line["line_id"] = line_id++;
+		result.push(line);
+	}
+	
+	return result;
+}
 
 
 /*
@@ -116,7 +169,6 @@ function add_event_save_checkbox() {
 	
 	$("input[type=text].memo").on( 'keyup change', function() {
 		var id = $(this).attr('id');
-		//console.log($(this).val());
 		localStorage.setItem(id, $(this).val());
 	});
 }
