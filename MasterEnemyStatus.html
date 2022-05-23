@@ -18,7 +18,10 @@
 			const GIT_EOM = 'https://raw.githubusercontent.com/Coded-Bots/ECHOES-of-MANA-Datamining/main/';
 			// Data required for this table
 			let files_required = [	GIT_EOM+'Master/MasterEnemyStatus.json',
-									GIT_EOM+'Master/MasterEnemy.json'
+									GIT_EOM+'Master/MasterEnemy.json',
+									GIT_EOM+'Master/MasterEnemyIdentity.json',
+									GIT_EOM+'Master/MasterEnemyDamageRate.json',
+									GIT_EOM+'Master/MasterEnemyDurability.json'
 								]
 			files_required.forEach(file => {
 				promiseList.push($.getJSON(file, function(data){
@@ -32,6 +35,9 @@
 				// values have the same order the promises were pushed in the list
 				masterEnemyStatus = parse_EoM_json(values[0], "MasterEnemyStatusId");
 				masterEnemy = parse_EoM_json(values[1], "MasterEnemyId");
+				masterEnemyIdentity = parse_EoM_json(values[2], "MasterEnemyIdentityId");
+				masterEnemyDamageRate = parse_EoM_json(values[3], "MasterEnemyDamageRateId");
+				masterEnemyDurability = parse_EoM_json(values[4], "MasterEnemyDurabilityId");
 				
 				// data for the datatable
 				data_table = get_datatable_MasterEnemyStatus();
@@ -106,6 +112,7 @@
 					"columns": [
 						{ "data": "line_id" },
 						{ "data": "NameEn" },
+						{ "data": "EnemyType" },
 						{ "data": "Level" },
 						{ "data": "Hp" },
 						{ "data": "Mp" },
@@ -121,6 +128,8 @@
 						{ "data": "MaxMagAtk" },
 						{ "data": "MaxMagDef" },
 						{ "data": "MaxLuck" },
+						{ "data": "Down" },
+						{ "data": "Knockback" },
 						{ "data": "MasterEnemyStatusGroupId" },
 						{ "data": "MasterEnemyStatusId" },
 						{ "data": "ReleaseLabel" }
@@ -179,11 +188,11 @@
 		<table id="myTable" class="display">
 			<input type="checkbox" name="regex_search" id="regex_search"></input>
 			<label for="regex_search">Use regex in column filters instead of smart search (allow things like "Ifrit|Shiva")</label>
-			<span> / Custom memo size: <input type="text" id="memo_size_esper" size="1" onkeyup="memoSizeChange(event)"></input>
 			<thead>
 				<tr>
 					<th>-</th>
 					<th>[NameEn]</th>
+					<th>[Type]</th>
 					<th>Level</th>
 					<th>Hp</th>
 					<th>Mp</th>
@@ -199,6 +208,8 @@
 					<th>MaxMagAtk</th>
 					<th>MaxMagDef</th>
 					<th>MaxLuck</th>
+					<th>Down<br/>Durability</th>
+					<th>Knockback<br/>Durability</th>
 					<th>MasterEnemyStatusGroupId</th>
 					<th>MasterEnemyStatusId</th>
 					<th>ReleaseLabel</th>

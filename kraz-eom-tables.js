@@ -7,6 +7,12 @@
 
 weaponTypeName = ["-","Axe","Boomerang","Bow","Flail","Glove","???","Dagger","Lance","Staff","Sword"]
 
+AttributeType = ["None", "Earth", "Wind", "Water", "Fire", "Dark", "Light", "Moon", "Wood", "All"]
+CharacterType = ["None", "Playable", "MainCharacter", "Material", "EvolveMaterial", "LimitBreakMaterial"]
+DamageDirectionType = ["None", "Normal", "Back", "Front"]
+EnemyType = ["None", "Beast", "Plant", "Bug", "Reptile", "Aquatic", "Undead", "Demon", "Dragon", "MagicCreature", "DemiHuman"]
+
+
 /*
 *   ====================            TABLE            ====================
 *	====================         MasterAttack        ====================
@@ -57,12 +63,31 @@ function get_datatable_MasterEnemyStatus() {
 	// Loop on all masterEnemyStatus objects
 	for (let [iname, item] of masterEnemyStatus) {
 		let line = {};
-		// Loop on parameters of masterAttack
+
+		// MasterEnemy
+		let enemyID = item["MasterEnemyStatusId"].toString().substring(2, 9); // 715001001001 => 5001001
+		let currentMasterEnemy = masterEnemy.get(parseInt("70020"+enemyID))
+		line["NameEn"] = currentMasterEnemy["NameEn"];
+		
+		// MasterEnemyIdentity
+		line["EnemyType"] = EnemyType[masterEnemyIdentity.get(currentMasterEnemy["MasterEnemyIdentityId"])["EnemyType"]];
+		
+		// MasterEnemyDamageRate
+		let currentMasterEnemyDamageRate = masterEnemyDamageRate.get(currentMasterEnemy["MasterEnemyDamageRateId"]);
+		for (const [stat, value] of Object.entries(currentMasterEnemyDamageRate)) {
+			line[stat] = value;
+		}
+		
+		// MasterEnemyDurability
+		let currentMasterEnemyDurability = masterEnemyDurability.get(currentMasterEnemy["MasterEnemyDurabilityId"]);
+		for (const [stat, value] of Object.entries(currentMasterEnemyDurability)) {
+			line[stat] = value;
+		}
+		
+		// Loop on parameters (masterEnemyStatus)
 		for (const [stat, value] of Object.entries(item)) {
 			line[stat] = value;
 		}
-		let enemyID = item["MasterEnemyStatusId"].toString().substring(2, 9); // 715001001001 => 5001001
-		line["NameEn"] = masterEnemy.get(parseInt("70020"+enemyID))["NameEn"];
 		
 		line["line_id"] = line_id++;
 		result.push(line);
