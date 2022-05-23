@@ -9,7 +9,7 @@
 		<script type="text/javascript" src="kraz-eom.js"></script>
 		<script type="text/javascript" src="kraz-eom-tables.js"></script>
 		
-		<title>EoM MasterAttack</title>
+		<title>EoM MasterLotteryEquipment</title>
 		
 		<script>
 			array_hidecol = get_columns_to_hide(); // From either the url or localstorage
@@ -17,11 +17,13 @@
 			// Download json from github repository
 			const GIT_EOM = 'https://raw.githubusercontent.com/Coded-Bots/ECHOES-of-MANA-Datamining/main/';
 			// Data required for this table
-			let files_required = [	GIT_EOM+'Master/MasterAttack.json',
-									GIT_EOM+'Master/MasterAttackLabelCharacter.json',
-									GIT_EOM+'Master/MasterCharacter.json',
-									GIT_EOM+'Master/MasterIdentity.json',
-									GIT_EOM+'En/L10NSkill.json'
+			let files_required = [	GIT_EOM+'Master/MasterLotteryEquipment.json',
+									GIT_EOM+'En/L10NEquipmentSeries.json',
+									GIT_EOM+'Master/MasterReward.json',
+									GIT_EOM+'En/L10NPoint.json',
+									GIT_EOM+'En/L10NManaBoardItem.json',
+									GIT_EOM+'En/L10NMemoryGemExpItem.json',
+									GIT_EOM+'En/L10NEquipmentExpItem.json'
 								]
 			files_required.forEach(file => {
 				promiseList.push($.getJSON(file, function(data){
@@ -33,14 +35,16 @@
 			Promise.all(promiseList).then(values => {
 				console.log("All promises finished");
 				// values have the same order the promises were pushed in the list
-				masterAttack = parse_EoM_json(values[0], "MasterAttackId");
-				mapAtkID_CharacID = parse_masterAttackLabel(values[1]);
-				masterCharacter = parse_EoM_json(values[2], "MasterCharacterId");
-				masterIdentity = parse_EoM_json(values[3], "MasterIdentityId");
-				l10NSkill = parse_L10Njson_skill(values[4], "LocalizationTargetId");
+				masterLotteryEquipment = parse_EoM_json(values[0], "MasterLotteryEquipmentId");
+				l10NEquipmentSeries = parse_L10Njson(values[1], "LocalizationTargetId");
+				masterReward = parse_EoM_json(values[2], "MasterRewardId");
+				l10NPoint = parse_L10Njson(values[3], "LocalizationTargetId");
+				l10NManaBoardItem = parse_L10Njson(values[4], "LocalizationTargetId");
+				l10NMemoryGemExpItem = parse_L10Njson(values[5], "LocalizationTargetId");
+				l10NEquipmentExpItem = parse_L10Njson(values[6], "LocalizationTargetId");
 				
 				// data for the datatable
-				data_table = get_datatable_MasterAttack();
+				data_table = get_datatable_MasterLotteryEquipment();
 				// The data is ready, show the datatable
 				create_datatable();
 				
@@ -111,35 +115,27 @@
 					},
 					"columns": [
 						{ "data": "line_id" },
-						{ "data": "skillName" },
-						{ "data": "weaponName" },
-						{ "data": "AttackCategory" },
-						{ "data": "AttackGroup" },
-						{ "data": "ChargePoint" },
-						{ "data": "CurrentHpRatioAttack" },
-						{ "data": "DamageRatio" },
-						{ "data": "KnockBackDamage" },
-						{ "data": "KnockBackImpactX" },
-						{ "data": "DownDamage" },
-						{ "data": "DownImpactX" },
-						{ "data": "DownImpactY" },
-						{ "data": "DownSourceHitstopTime" },
-						{ "data": "DownTargetHitstopTime" },
-						{ "data": "FixedHpAttack" },
-						{ "data": "GuardDamage" },
-						{ "data": "HateRatio" },
-						{ "data": "HitEffectId" },
-						{ "data": "IgnoreSuperArmor" },
-						{ "data": "ImpactType" },
-						{ "data": "ImpulseGain" },
-						{ "data": "MasterAttackId" },
-						{ "data": "MasterEfficacyGroupId" },
-						{ "data": "ReleaseLabel" },
-						{ "data": "SkillNum" },
-						{ "data": "SourceHitstopTime" },
-						{ "data": "Stomping" },
-						{ "data": "TargetHitstopTime" },
-						{ "data": "WeaponType" }
+						{ "data": "MasterLotteryEquipmentId" },
+						{ "data": "MasterLotteryEquipmentGroupId" },
+						{ "data": "Group" },
+						{ "data": "LotteryEquipmentType" },
+						{ "data": "MasterRewardId" },
+						{ "data": "Quantity" },
+						{ "data": "RewardType" },
+						{ "data": "RewardItemId" },
+						{ "data": "MasterLotteryEquipmentSeriesGroupId" },
+						{ "data": "name" },
+						{ "data": "description" },
+						{ "data": "Rarity" },
+						{ "data": "Rate" },
+						{ "data": "IsAll" },
+						{ "data": "IsArm" },
+						{ "data": "IsBody" },
+						{ "data": "IsHead" },
+						{ "data": "IsNecklace" },
+						{ "data": "IsRing" },
+						{ "data": "IsSpecial" },
+						{ "data": "ReleaseLabel" }
 					],
 					// Annoying, filter doesn't apply at initialization, need to redraw table after 1 ms
 					initComplete: function () {
@@ -182,7 +178,7 @@
 		}
 	</style>
 	<body>
-		<span>MasterAttack table - <a href="./index.html">Return to index</a></span> - <span id="table_url"></span>
+		<span>MasterLotteryEquipment table - <a href="./index.html">Return to index</a></span> - <span id="table_url"></span>
 		<span>
 			Language:
 			<select name="language" id="language" onchange="languageChange(this.value)">
@@ -198,35 +194,27 @@
 			<thead>
 				<tr>
 					<th>-</th>
-					<th>[SkillName]</th>
-					<th>[WeaponName]</th>
-					<th>AttackCategory</th>
-					<th>AttackGroup</th>
-					<th>ChargePoint</th>
-					<th>CurrentHpRatioAttack</th>
-					<th>DamageRatio</th>
-					<th>KnockBackDamage</th>
-					<th>KnockBackImpactX</th>
-					<th>DownDamage</th>
-					<th>DownImpactX</th>
-					<th>DownImpactY</th>
-					<th>DownSourceHitstopTime</th>
-					<th>DownTargetHitstopTime</th>
-					<th>FixedHpAttack</th>
-					<th>GuardDamage</th>
-					<th>HateRatio</th>
-					<th>HitEffectId</th>
-					<th>IgnoreSuperArmor</th>
-					<th>ImpactType</th>
-					<th>ImpulseGain</th>
-					<th>MasterAttackId</th>
-					<th>MasterEfficacyGroupId</th>
+					<th>Lottery<br/>EquipmentId</th>
+					<th>Lottery<br/>EquipmentGroupId</th>
+					<th>Group</th>
+					<th>Lottery<br/>EquipmentType</th>
+					<th>RewardId</th>
+					<th>Reward<br/>Qty</th>
+					<th>Reward<br/>Type</th>
+					<th>Reward<br/>ItemId</th>
+					<th>LotteryEquipment<br/>SeriesGroupId</th>
+					<th>Series<br/>Name</th>
+					<th>Series Description</th>
+					<th>Rarity</th>
+					<th>Rate</th>
+					<th>IsAll</th>
+					<th>IsArm</th>
+					<th>IsBody</th>
+					<th>IsHead</th>
+					<th>IsNecklace</th>
+					<th>IsRing</th>
+					<th>IsSpecial</th>
 					<th>ReleaseLabel</th>
-					<th>SkillNum</th>
-					<th>SourceHitstopTime</th>
-					<th>Stomping</th>
-					<th>TargetHitstopTime</th>
-					<th>WeaponType</th>
 				</tr>
 			</thead>
 			<tbody>

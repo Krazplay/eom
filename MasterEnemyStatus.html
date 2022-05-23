@@ -130,10 +130,63 @@
 						{ "data": "MaxLuck" },
 						{ "data": "Down" },
 						{ "data": "Knockback" },
-						{ "data": "MasterEnemyStatusGroupId" },
+						{ "data": "Boss" },
 						{ "data": "MasterEnemyStatusId" },
-						{ "data": "ReleaseLabel" }
+						{ "data": "ReleaseLabel" },
+						{ "data": "EarthDamageRate" },
+						{ "data": "EarthDamageReduceRate" },
+						{ "data": "WindDamageRate" },
+						{ "data": "WindDamageReduceRate" },
+						{ "data": "WaterDamageRate" },
+						{ "data": "WaterDamageReduceRate" },
+						{ "data": "FireDamageRate" },
+						{ "data": "FireDamageReduceRate" },
+						{ "data": "DarkDamageRate" },
+						{ "data": "DarkDamageReduceRate" },
+						{ "data": "LightDamageRate" },
+						{ "data": "LightDamageReduceRate" },
+						{ "data": "MoonDamageRate" },
+						{ "data": "MoonDamageReduceRate" },
+						{ "data": "WoodDamageRate" },
+						{ "data": "WoodDamageReduceRate" },
+						
+						{ "data": "PhysicalDamageRate" },
+						{ "data": "PhysicalDamageReduceRate" },
+						{ "data": "MagicDamageRate" },
+						{ "data": "MagicDamageReduceRate" },
+						{ "data": "BlowDamageRate" },
+						{ "data": "BlowDamageReduceRate" },
+						{ "data": "SlashDamageRate" },
+						{ "data": "SlashDamageReduceRate" },
+						{ "data": "ThrustDamageRate" },
+						{ "data": "ThrustDamageReduceRate" },
+						
+						{ "data": "AxeDamageRate" },
+						{ "data": "AxeDamageReduceRate" },
+						{ "data": "BoomerangDamageRate" },
+						{ "data": "BoomerangDamageReduceRate" },
+						{ "data": "BowDamageRate" },
+						{ "data": "BowDamageReduceRate" },
+						{ "data": "FlailDamageRate" },
+						{ "data": "FlailDamageReduceRate" },
+						{ "data": "GloveDamageRate" },
+						{ "data": "GloveDamageReduceRate" },
+						{ "data": "JavelinDamageRate" },
+						{ "data": "JavelinDamageReduceRate" },
+						{ "data": "KnifeDamageRate" },
+						{ "data": "KnifeDamageReduceRate" },
+						{ "data": "LanceDamageRate" },
+						{ "data": "LanceDamageReduceRate" },
+						{ "data": "StaffDamageRate" },
+						{ "data": "StaffDamageReduceRate" },
+						{ "data": "SwordDamageRate" },
+						{ "data": "SwordDamageReduceRate" },
+						{ "data": "WhipDamageRate" },
+						{ "data": "WhipDamageReduceRate" },
+						{ "data": "ShieldDamageRate" },
+						{ "data": "ShieldDamageReduceRate" }
 					],
+
 					// Annoying, filter doesn't apply at initialization, need to redraw table after 1 ms
 					initComplete: function () {
 						const dt = this.api();
@@ -210,9 +263,61 @@
 					<th>MaxLuck</th>
 					<th>Down<br/>Durability</th>
 					<th>Knockback<br/>Durability</th>
-					<th>MasterEnemyStatusGroupId</th>
+					<th>Boss</th>
 					<th>MasterEnemyStatusId</th>
 					<th>ReleaseLabel</th>
+					<th>Earth<br/>Damage<br/>Rate</th>
+					<th>Earth<br/>Damage<br/>ReduceRate</th>
+					<th>Wind<br/>Damage<br/>Rate</th>
+					<th>Wind<br/>Damage<br/>ReduceRate</th>
+					<th>Water<br/>Damage<br/>Rate</th>
+					<th>Water<br/>Damage<br/>ReduceRate</th>
+					<th>Fire<br/>Damage<br/>Rate</th>
+					<th>Fire<br/>Damage<br/>ReduceRate</th>
+					<th>Dark<br/>Damage<br/>Rate</th>
+					<th>Dark<br/>Damage<br/>ReduceRate</th>
+					<th>Light<br/>Damage<br/>Rate</th>
+					<th>Light<br/>Damage<br/>ReduceRate</th>
+					<th>Moon<br/>Damage<br/>Rate</th>
+					<th>Moon<br/>Damage<br/>ReduceRate</th>
+					<th>Wood<br/>Damage<br/>Rate</th>
+					<th>Wood<br/>Damage<br/>ReduceRate</th>
+					
+					<th>Physical<br/>Damage<br/>Rate</th>
+					<th>Physical<br/>Damage<br/>ReduceRate</th>
+					<th>Magic<br/>Damage<br/>Rate</th>
+					<th>Magic<br/>Damage<br/>ReduceRate</th>
+					<th>Blow<br/>Damage<br/>Rate</th>
+					<th>Blow<br/>Damage<br/>ReduceRate</th>
+					<th>Slash<br/>Damage<br/>Rate</th>
+					<th>Slash<br/>Damage<br/>ReduceRate</th>
+					<th>Thrust<br/>Damage<br/>Rate</th>
+					<th>Thrust<br/>Damage<br/>ReduceRate</th>
+					
+					<th>Axe<br/>Damage<br/>Rate</th>
+					<th>Axe<br/>Damage<br/>ReduceRate</th>
+					<th>Boomerang<br/>Damage<br/>Rate</th>
+					<th>Boomerang<br/>Damage<br/>ReduceRate</th>
+					<th>Bow<br/>Damage<br/>Rate</th>
+					<th>Bow<br/>Damage<br/>ReduceRate</th>
+					<th>Flail<br/>Damage<br/>Rate</th>
+					<th>Flail<br/>Damage<br/>ReduceRate</th>
+					<th>Glove<br/>Damage<br/>Rate</th>
+					<th>Glove<br/>Damage<br/>ReduceRate</th>
+					<th>Javelin<br/>Damage<br/>Rate</th>
+					<th>Javelin<br/>Damage<br/>ReduceRate</th>
+					<th>Knife<br/>Damage<br/>Rate</th>
+					<th>Knife<br/>Damage<br/>ReduceRate</th>
+					<th>Lance<br/>Damage<br/>Rate</th>
+					<th>Lance<br/>Damage<br/>ReduceRate</th>
+					<th>Staff<br/>Damage<br/>Rate</th>
+					<th>Staff<br/>Damage<br/>ReduceRate</th>
+					<th>Sword<br/>Damage<br/>Rate</th>
+					<th>Sword<br/>Damage<br/>ReduceRate</th>
+					<th>Whip<br/>Damage<br/>Rate</th>
+					<th>Whip<br/>Damage<br/>ReduceRate</th>
+					<th>Shield<br/>Damage<br/>Rate</th>
+					<th>Shield<br/>Damage<br/>ReduceRate</th>
 				</tr>
 			</thead>
 			<tbody>

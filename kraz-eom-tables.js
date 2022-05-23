@@ -5,13 +5,20 @@
 	get_datatables_xxx => Create an array of objects to be used as data for datatables
 */
 
-weaponTypeName = ["-","Axe","Boomerang","Bow","Flail","Glove","???","Dagger","Lance","Staff","Sword"]
+weaponTypeName = ["-","Axe","Boomerang","Bow","Flail","Glove","???","Knife","Lance","Staff","Sword","Whip","Shield"]
 
+AttachWeaponType = ["-","Axe","Boomerang","Bow","Flail","Glove","Javelin","Knife","Lance","Staff","Sword","Whip","Shield"]
+AttackCategory = ["Physical", "Magic", "Blow", "Slash", "Thrust"]
+AttackGroup = ["Normal", "Skill", "Special", "MagicSpecial"]
 AttributeType = ["None", "Earth", "Wind", "Water", "Fire", "Dark", "Light", "Moon", "Wood", "All"]
 CharacterType = ["None", "Playable", "MainCharacter", "Material", "EvolveMaterial", "LimitBreakMaterial"]
 DamageDirectionType = ["None", "Normal", "Back", "Front"]
 EnemyType = ["None", "Beast", "Plant", "Bug", "Reptile", "Aquatic", "Undead", "Demon", "Dragon", "MagicCreature", "DemiHuman"]
-
+QuestChapterType = ["None", "Story", "Battle", "Exploration"]
+QuestChapterCellType = ["None", "Story", "Battle", "Exploration", "Boss", "SubStory"]
+//LotteryEquipmentType = ["Invalid", "Reward", "EquipmentSeriesGroup"]
+LotteryEquipmentType = ["Invalid", "Reward", "EquipmentSeries"]
+RewardType = ["None","Gem","Item","Character","MemoryGem","Equipment","LotteryEquipment","Weapon","Costume","Point","Stamp","Title","Talk"]
 
 /*
 *   ====================            TABLE            ====================
@@ -19,7 +26,6 @@ EnemyType = ["None", "Beast", "Plant", "Bug", "Reptile", "Aquatic", "Undead", "D
 */
 
 function get_datatable_MasterAttack() {
-
 	let line_id = 1;
 	result = [];
 	// Loop on all attack objects
@@ -39,7 +45,7 @@ function get_datatable_MasterAttack() {
 		//	line["name"] = masterIdentity.get(masterIdentityId)["NameEn"];
 		//}
 		line["DamageRatio"] = line["DamageRatio"] / 100
-		line["weaponName"] = weaponTypeName[item["WeaponType"]];
+		line["weaponName"] = AttachWeaponType[item["WeaponType"]];
 		
 		// Try to get skill name
 		let shortMastAtckId = item["MasterAttackId"].toString().substring(1);
@@ -57,9 +63,8 @@ function get_datatable_MasterAttack() {
 
 
 function get_datatable_MasterEnemyStatus() {
-	
 	let line_id = 1;
-	result = [];
+	let result = [];
 	// Loop on all masterEnemyStatus objects
 	for (let [iname, item] of masterEnemyStatus) {
 		let line = {};
@@ -68,6 +73,7 @@ function get_datatable_MasterEnemyStatus() {
 		let enemyID = item["MasterEnemyStatusId"].toString().substring(2, 9); // 715001001001 => 5001001
 		let currentMasterEnemy = masterEnemy.get(parseInt("70020"+enemyID))
 		line["NameEn"] = currentMasterEnemy["NameEn"];
+		line["Boss"] = currentMasterEnemy["Boss"];
 		
 		// MasterEnemyIdentity
 		line["EnemyType"] = EnemyType[masterEnemyIdentity.get(currentMasterEnemy["MasterEnemyIdentityId"])["EnemyType"]];
@@ -75,7 +81,7 @@ function get_datatable_MasterEnemyStatus() {
 		// MasterEnemyDamageRate
 		let currentMasterEnemyDamageRate = masterEnemyDamageRate.get(currentMasterEnemy["MasterEnemyDamageRateId"]);
 		for (const [stat, value] of Object.entries(currentMasterEnemyDamageRate)) {
-			line[stat] = value;
+			if (value != 10000) { line[stat] = value / 100 };
 		}
 		
 		// MasterEnemyDurability
@@ -98,19 +104,39 @@ function get_datatable_MasterEnemyStatus() {
 
 
 function get_datatable_MasterQuestChapter() {
-
 	let line_id = 1;
-	result = [];
+	let result = [];
+	// Multiple missions can use the same EquipmentGroupId, generate a hash EquipmentGroupId => reward text
+	let reward_text = get_hash_reward_to_text();
 	// Loop on all objects
 	for (let [iname, item] of masterQuestChapter) {
 		let line = {};
 		// Loop on parameters
 		for (const [stat, value] of Object.entries(item)) {
-			line[stat] = value;
+			if (stat == "ChapterType") line[stat] = QuestChapterType[value];
+			else if (stat == "ChapterCellType") line[stat] = QuestChapterCellType[value];
+			else line[stat] = value;
 		}
 		
 		line["chapterName"] = l10NQuestChapter.get(item["MasterQuestChapterId"])["ChapterName"];
 		line["tips"] = l10NQuestChapter.get(item["MasterQuestChapterId"])["tips"];
+		
+		// Reward
+		masterLotteryEquipment.get(item["ClearMasterRewardGroupId"]);
+		
+		let rewardGroupId = -1;
+		// Elemental dungeons lv4 changed from lottery to direct reward...
+		//console.log(item["ClearMasterRewardGroupId"].toString().substring(0,7));
+		if (item["ClearMasterRewardGroupId"].toString().substring(0,7) == "4200811") {
+			rewardGroupId = item["ClearMasterRewardGroupId"];
+			console.log("work");
+			console.log(reward_text[rewardGroupId]);
+		}
+		else {
+			let shortId = item["ClearMasterRewardGroupId"].toString().substring(7);
+			rewardGroupId = parseInt("5200010" + shortId)
+		}
+		line["Reward"] = reward_text[rewardGroupId];
 		
 		line["line_id"] = line_id++;
 		result.push(line);
@@ -119,6 +145,96 @@ function get_datatable_MasterQuestChapter() {
 	return result;
 }
 
+function get_hash_reward_to_text() {
+	let result = {};
+	// Loop on all lottery
+	for (let [iname, item] of masterLotteryEquipment) {
+		let hashkey = item["MasterLotteryEquipmentGroupId"]
+		if (result[hashkey] == null) result[hashkey] = ""; // init if null
+		let rate_text = item["Rate"] / 100
+		// Equipment series
+		if (item["MasterLotteryEquipmentSeriesGroupId"] != 0) {
+			let shortSeriesId = item["MasterLotteryEquipmentSeriesGroupId"].toString().substring(6);
+			equipText = l10NEquipmentSeries.get(parseInt('3002'+shortSeriesId));
+			result[hashkey] += equipText["name"] + ` ${item["Rarity"]}* ` + " ("+rate_text+")<br/>";
+		}
+		// Others rewards
+		if (item["MasterRewardId"] != 0) {
+			let theReward = masterReward.get(item["MasterRewardId"]);
+			let rewardName = "temp";
+			if ( theReward["RewardType"] == 2 ) {
+				if (theReward["RewardItemId"].toString().charAt(2) == "3") rewardName = l10NMemoryGemExpItem.get(theReward["RewardItemId"])["name"];
+				else if (theReward["RewardItemId"].toString().charAt(2) == "4") rewardName = l10NManaBoardItem.get(theReward["RewardItemId"])["name"];
+				else if (theReward["RewardItemId"].toString().charAt(2) == "5") rewardName = l10NEquipmentExpItem.get(theReward["RewardItemId"])["name"];
+				else rewardName = theReward["RewardItemId"];
+			}
+			else if ( theReward["RewardType"] == 9 ) rewardName = l10NPoint.get(theReward["RewardItemId"])["name"];
+			else rewardName = theReward["RewardItemId"];
+			
+			result[hashkey] +=  `${theReward["Quantity"]} ${rewardName} (${rate_text})<br/>`
+		}
+	}
+	
+	// Loop on all rewards
+	for (let [iname, item] of masterReward) {
+		let hashkey = item["MasterRewardGroupId"];
+		if (result[hashkey] == null) result[hashkey] = ""; // init if null
+		let theReward = item;
+		let rewardName = "temp";
+		if ( theReward["RewardType"] == 2 ) {
+			if (theReward["RewardItemId"].toString().charAt(2) == "3") rewardName = l10NMemoryGemExpItem.get(theReward["RewardItemId"])["name"];
+			else if (theReward["RewardItemId"].toString().charAt(2) == "4") rewardName = l10NManaBoardItem.get(theReward["RewardItemId"])["name"];
+			else if (theReward["RewardItemId"].toString().charAt(2) == "5") rewardName = l10NEquipmentExpItem.get(theReward["RewardItemId"])["name"];
+			else rewardName = theReward["RewardItemId"];
+		}
+		else if ( theReward["RewardType"] == 9 ) rewardName = l10NPoint.get(theReward["RewardItemId"])["name"];
+		else rewardName = theReward["RewardItemId"];
+		
+		result[hashkey] +=  `${theReward["Quantity"]} ${rewardName} (100%)`
+	}
+	return result;
+}
+
+function get_datatable_MasterLotteryEquipment() {
+	let line_id = 1;
+	let result = [];
+	// Loop on all objects
+	for (let [iname, item] of masterLotteryEquipment) {
+		let line = {};
+		
+		// Loop on parameters
+		for (const [stat, value] of Object.entries(item)) {
+			if (stat == "Rate") line[stat] = value / 100;
+			else if (stat == "LotteryEquipmentType") line[stat] = LotteryEquipmentType[value];
+			else if (value == false) line[stat] = "";
+			else line[stat] = value;
+		}
+		
+		if (item["MasterLotteryEquipmentSeriesGroupId"] != 0) {
+			let shortSeriesId = item["MasterLotteryEquipmentSeriesGroupId"].toString().substring(6);
+			equipText = l10NEquipmentSeries.get(parseInt('3002'+shortSeriesId));
+			line["name"] = equipText["name"];
+			line["description"] = equipText["description"];
+		}
+		
+		if (item["MasterRewardId"] != 0) {
+			let theReward = masterReward.get(item["MasterRewardId"]);
+			line["Quantity"] = theReward["Quantity"];
+			line["RewardType"] = RewardType[theReward["RewardType"]];
+			if ( theReward["RewardType"] == 2 ) {
+				if (theReward["RewardItemId"].toString().charAt(2) == "3") line["RewardItemId"] = l10NMemoryGemExpItem.get(theReward["RewardItemId"])["name"];
+				else if (theReward["RewardItemId"].toString().charAt(2) == "4") line["RewardItemId"] = l10NManaBoardItem.get(theReward["RewardItemId"])["name"];
+				else if (theReward["RewardItemId"].toString().charAt(2) == "5") line["RewardItemId"] = l10NEquipmentExpItem.get(theReward["RewardItemId"])["name"];
+				else line["RewardItemId"] = theReward["RewardItemId"];
+			}
+			else if ( theReward["RewardType"] == 9 ) line["RewardItemId"] = l10NPoint.get(theReward["RewardItemId"])["name"];
+			else line["RewardItemId"] = theReward["RewardItemId"];
+		}
+		line["line_id"] = line_id++;
+		result.push(line);
+	}
+	return result;
+}
 
 /*
 *   ====================   Common functions used   ====================

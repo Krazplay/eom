@@ -18,7 +18,15 @@
 			const GIT_EOM = 'https://raw.githubusercontent.com/Coded-Bots/ECHOES-of-MANA-Datamining/main/';
 			// Data required for this table
 			let files_required = [	GIT_EOM+'Master/MasterQuestChapter.json',
-									GIT_EOM+'En/L10NQuestChapter.json'
+									GIT_EOM+'En/L10NQuestChapter.json',
+									
+									GIT_EOM+'Master/MasterLotteryEquipment.json',
+									GIT_EOM+'En/L10NEquipmentSeries.json',
+									GIT_EOM+'Master/MasterReward.json',
+									GIT_EOM+'En/L10NPoint.json',
+									GIT_EOM+'En/L10NManaBoardItem.json',
+									GIT_EOM+'En/L10NMemoryGemExpItem.json',
+									GIT_EOM+'En/L10NEquipmentExpItem.json'
 								]
 			files_required.forEach(file => {
 				promiseList.push($.getJSON(file, function(data){
@@ -32,6 +40,14 @@
 				// values have the same order the promises were pushed in the list
 				masterQuestChapter = parse_EoM_json(values[0], "MasterQuestChapterId");
 				l10NQuestChapter = parse_L10Njson_questchapter(values[1], "LocalizationTargetId");
+				
+				masterLotteryEquipment = parse_EoM_json(values[2], "MasterLotteryEquipmentId");
+				l10NEquipmentSeries = parse_L10Njson(values[3], "LocalizationTargetId");
+				masterReward = parse_EoM_json(values[4], "MasterRewardId");
+				l10NPoint = parse_L10Njson(values[5], "LocalizationTargetId");
+				l10NManaBoardItem = parse_L10Njson(values[6], "LocalizationTargetId");
+				l10NMemoryGemExpItem = parse_L10Njson(values[7], "LocalizationTargetId");
+				l10NEquipmentExpItem = parse_L10Njson(values[8], "LocalizationTargetId");
 				
 				// data for the datatable
 				data_table = get_datatable_MasterQuestChapter();
@@ -97,7 +113,8 @@
 					autoWidth: false,
 					columnDefs: [
 						{ visible: false, targets: array_hidecol },
-						{ targets: '_all', className: "centertext", defaultContent: "" }
+						{ targets: '_all', className: "centertext", defaultContent: "" },
+						{ width: '300', targets: 18 }
 					],
 					select: {
 						style:    'os',
@@ -120,7 +137,11 @@
 						{ "data": "Difficulty" },
 						{ "data": "ChapterNum" },
 						{ "data": "ChapterType" },
-						{ "data": "ReleaseLabel" }
+						{ "data": "ChapterCellType" },
+						{ "data": "ReleaseLabel" },
+						{ "data": "Reward" },
+						{ "data": "ClearMasterRewardGroupId" }
+						
 					],
 					// Annoying, filter doesn't apply at initialization, need to redraw table after 1 ms
 					initComplete: function () {
@@ -176,26 +197,28 @@
 		<table id="myTable" class="display">
 			<input type="checkbox" name="regex_search" id="regex_search"></input>
 			<label for="regex_search">Use regex in column filters instead of smart search (allow things like "Ifrit|Shiva")</label>
-			<span> / Custom memo size: <input type="text" id="memo_size_esper" size="1" onkeyup="memoSizeChange(event)"></input>
 			<thead>
 				<tr>
 					<th>-</th>
 					<th>[ChapterName]</th>
 					<th>[Tips]</th>
-					<th>masterQuestChapterId</th>
-					<th>RewardUserExp</th>
-					<th>RewardUnitExp</th>
-					<th>RewardGold</th>
-					<th>ConsumeStamina</th>
-					<th>TimeLimit</th>
-					<th>RecommendCombatPower</th>
-					<th>RecommendCombatPowerReachedCount</th>
-					<th>RecommendTotalCombatPower</th>
-					<th>MultiPlayerCount</th>
+					<th>Quest<br/>ChapterId</th>
+					<th>Reward<br/>UserExp</th>
+					<th>Reward<br/>UnitExp</th>
+					<th>Reward<br/>Gold</th>
+					<th>Consume<br/>Stamina</th>
+					<th>Time<br/>Limit</th>
+					<th>Recom<br/>Combat<br/>Power</th>
+					<th>Recom<br/>Combat<br/>Power<br/>ReachedCount</th>
+					<th>Recom<br/>Total<br/>Combat<br/>Power</th>
+					<th>Multi<br/>player<br/>Count</th>
 					<th>Difficulty</th>
-					<th>ChapterNum</th>
-					<th>ChapterType</th>
+					<th>Chapter<br/>Num</th>
+					<th>Chapter<br/>Type</th>
+					<th>Cell<br/>Type</th>
 					<th>ReleaseLabel</th>
+					<th>Reward</th>
+					<th>Clear<br/>Reward<br/>GroupId</th>
 				</tr>
 			</thead>
 			<tbody>

@@ -42,6 +42,15 @@ function parse_L10Njson_questchapter(data, key_id) {
 	return mapData;
 }
 
+function parse_L10Njson(data, key_id) {
+	let mapData = new Map();
+	data.forEach((item) => {
+		if (mapData.has(item[key_id]) == false) mapData.set(item[key_id], {});
+		mapData.get(item[key_id])[item["ColumnName"]] = item["Text"];
+	});
+	return mapData;
+}
+
 function parse_masterAttackLabel(data, mapData = new Map()) {
 	//let mapData = new Map();
 	let regex = /^AttackLabel/;
