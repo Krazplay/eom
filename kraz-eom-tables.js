@@ -14,11 +14,15 @@ AttributeType = ["None", "Earth", "Wind", "Water", "Fire", "Dark", "Light", "Moo
 CharacterType = ["None", "Playable", "MainCharacter", "Material", "EvolveMaterial", "LimitBreakMaterial"]
 DamageDirectionType = ["None", "Normal", "Back", "Front"]
 EnemyType = ["None", "Beast", "Plant", "Bug", "Reptile", "Aquatic", "Undead", "Demon", "Dragon", "MagicCreature", "DemiHuman"]
+Gender = ["None", "Male", "Female", "Unknown"]
 QuestChapterType = ["None", "Story", "Battle", "Exploration"]
 QuestChapterCellType = ["None", "Story", "Battle", "Exploration", "Boss", "SubStory"]
 //LotteryEquipmentType = ["Invalid", "Reward", "EquipmentSeriesGroup"]
 LotteryEquipmentType = ["Invalid", "Reward", "EquipmentSeries"]
 RewardType = ["None","Gem","Item","Character","MemoryGem","Equipment","LotteryEquipment","Weapon","Costume","Point","Stamp","Title","Talk"]
+Series = ["None", "First", "Second", "Third", "Fourth", "Legend", "Children", "Friends", "Heros", "Circle", "Rise", "Wfs"]
+StatusType = ["None", "Hp", "Mp", "PhysicalAttack", "PhysicalDefence", "MagicalAttack", "MagicalDefence", "Luck"]
+
 
 /*
 *   ====================            TABLE            ====================
@@ -230,6 +234,67 @@ function get_datatable_MasterLotteryEquipment() {
 			else if ( theReward["RewardType"] == 9 ) line["RewardItemId"] = l10NPoint.get(theReward["RewardItemId"])["name"];
 			else line["RewardItemId"] = theReward["RewardItemId"];
 		}
+		line["line_id"] = line_id++;
+		result.push(line);
+	}
+	return result;
+}
+
+
+function get_datatable_MasterLotteryRate() {
+	let line_id = 1;
+	let result = [];
+	// Loop on all objects
+	for (let [iname, item] of masterLotteryRate) {
+		let line = {};
+		
+		// Loop on parameters
+		for (const [stat, value] of Object.entries(item)) {
+			if (stat == "Rate") line[stat] = value / 100;
+			else if (stat == "LotteryEquipmentType") line[stat] = LotteryEquipmentType[value];
+			else if (value == false) line[stat] = "";
+			else line[stat] = value;
+		}
+		
+		
+		line["line_id"] = line_id++;
+		result.push(line);
+	}
+	return result;
+}
+
+function get_datatable_MasterCharacter() {
+	let line_id = 1;
+	let result = [];
+	// Loop on all objects
+	for (let [iname, item] of masterCharacter) {
+		let line = {};
+		
+		// Loop on parameters
+		for (const [stat, value] of Object.entries(item)) {
+			if (value == false) line[stat] = "";
+			else line[stat] = value;
+		}
+		
+		line["attributeName"] = AttributeType[item["Attribute"]];
+		line["weaponName"] = AttachWeaponType[item["WeaponType"]];
+		line["CharacterType"] = CharacterType[item["CharacterType"]];
+		line["RecoveryStatusType"] = StatusType[item["RecoveryStatusType"]];
+		
+		// Grab string after last slash of AssetPath
+		line["AssetName"] = /[^/]*$/.exec(item["AssetPath"])[0];
+		
+		let identity = masterIdentity.get(item["MasterIdentityId"]);
+		line["NameEn"] = identity["NameEn"];
+		line["Gender"] = Gender[identity["Gender"]];
+		line["Series"] = Series[identity["Series"]];
+		
+		let charStatus = masterCharacterStatus.get(item["MasterCharacterStatusId"]);
+		for (const [stat, value] of Object.entries(charStatus)) {
+			if (value == false) line[stat] = "";
+			else line[stat] = value;
+		}
+		
 		line["line_id"] = line_id++;
 		result.push(line);
 	}
