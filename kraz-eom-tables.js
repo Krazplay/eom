@@ -130,11 +130,8 @@ function get_datatable_MasterQuestChapter() {
 		
 		let rewardGroupId = -1;
 		// Elemental dungeons lv4 changed from lottery to direct reward...
-		//console.log(item["ClearMasterRewardGroupId"].toString().substring(0,7));
 		if (item["ClearMasterRewardGroupId"].toString().substring(0,7) == "4200811") {
 			rewardGroupId = item["ClearMasterRewardGroupId"];
-			console.log("work");
-			console.log(reward_text[rewardGroupId]);
 		}
 		else {
 			let shortId = item["ClearMasterRewardGroupId"].toString().substring(7);
@@ -298,6 +295,47 @@ function get_datatable_MasterCharacter() {
 		line["line_id"] = line_id++;
 		result.push(line);
 	}
+	return result;
+}
+
+
+function get_datatable_MasterReward() {
+	let line_id = 1;
+	let result = [];
+	
+	let reward_text = get_hash_reward_to_text();
+	
+	// Loop on all objects
+	for (let [iname, item] of masterReward) {
+		let line = {};
+		
+		// Loop on parameters
+		for (const [stat, value] of Object.entries(item)) {
+			if (value == false) line[stat] = "";
+			else line[stat] = value;
+		}
+		
+		let reward = findRewardItem(item["RewardItemId"], item["RewardType"]);
+		line["Reward"] = reward["name"];	
+		
+		line["line_id"] = line_id++;
+		result.push(line);
+	}
+	return result;
+}
+
+
+function findRewardItem(rewardItemId, rewardType) {
+	let result = { name: "!!!" };
+	if ( rewardType == 2 ) {
+		if (rewardItemId.toString().charAt(2) == "3") result = l10NMemoryGemExpItem.get(rewardItemId);
+		else if (rewardItemId.toString().charAt(2) == "4") result = l10NManaBoardItem.get(rewardItemId);
+		else if (rewardItemId.toString().charAt(2) == "5") result = l10NEquipmentExpItem.get(rewardItemId);
+		else result["name"] = "?";
+	}
+	else if ( rewardType == 9 ) result = l10NPoint.get(rewardItemId);
+	else result["name"] = RewardType[rewardType]+"?";
+	
 	return result;
 }
 
