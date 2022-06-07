@@ -292,6 +292,12 @@ function get_datatable_MasterCharacter() {
 			else line[stat] = value;
 		}
 		
+		let awakCharStatus = masterCharacterAwakingStatus.get(item["MasterCharacterAwakingStatusId"]);
+		for (const [stat, value] of Object.entries(awakCharStatus)) {
+			if (value == false) line[stat] = "";
+			else line['Awak'+stat] = value;
+		}
+		
 		line["line_id"] = line_id++;
 		result.push(line);
 	}

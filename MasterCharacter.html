@@ -22,7 +22,8 @@
 									GIT_EOM+'Master/MasterCharacter.json',
 									GIT_EOM+'Master/MasterIdentity.json',
 									GIT_EOM+'Master/MasterCharacterStatus.json',
-									GIT_EOM+'En/L10NSkill.json'
+									GIT_EOM+'En/L10NSkill.json',
+									GIT_EOM+'Master/MasterCharacterAwakingStatus.json'
 								]
 			files_required.forEach(file => {
 				promiseList.push($.getJSON(file, function(data){
@@ -40,6 +41,7 @@
 				masterIdentity = parse_EoM_json(values[3], "MasterIdentityId");
 				masterCharacterStatus = parse_EoM_json(values[4], "MasterCharacterStatusId");
 				l10NSkill = parse_L10Njson_skill(values[5], "LocalizationTargetId");
+				masterCharacterAwakingStatus = parse_EoM_json(values[6], "MasterCharacterAwakingStatusId");
 				
 				// data for the datatable
 				data_table = get_datatable_MasterCharacter();
@@ -122,20 +124,27 @@
 						{ "data": "Gender" },
 						{ "data": "Series" },
 						{ "data": "RecoveryStatusType" },
-						{ "data": "LimitbreakMaxHp" },
-						{ "data": "LimitbreakMaxMp" },
-						{ "data": "LimitbreakMaxPhyAtk" },
-						{ "data": "LimitbreakMaxPhyDef" },
-						{ "data": "LimitbreakMaxMagAtk" },
-						{ "data": "LimitbreakMaxMagDef" },
-						{ "data": "LimitbreakMaxLuck" },
-						{ "data": "MaxHp" },
-						{ "data": "MaxMp" },
-						{ "data": "MaxPhyAtk" },
-						{ "data": "MaxPhyDef" },
-						{ "data": "MaxMagAtk" },
-						{ "data": "MaxMagDef" },
-						{ "data": "MaxLuck" },
+						{ "data": "AwakMaxHp", "className": "green_column" },
+						{ "data": "AwakMaxMp", "className": "green_column" },
+						{ "data": "AwakMaxPhyAtk", "className": "green_column" },
+						{ "data": "AwakMaxPhyDef", "className": "green_column" },
+						{ "data": "AwakMaxMagAtk", "className": "green_column" },
+						{ "data": "AwakMaxMagDef", "className": "green_column" },
+						{ "data": "AwakMaxLuck", "className": "green_column" },
+						{ "data": "LimitbreakMaxHp", "className": "blue_column" },
+						{ "data": "LimitbreakMaxMp", "className": "blue_column" },
+						{ "data": "LimitbreakMaxPhyAtk", "className": "blue_column" },
+						{ "data": "LimitbreakMaxPhyDef", "className": "blue_column" },
+						{ "data": "LimitbreakMaxMagAtk", "className": "blue_column" },
+						{ "data": "LimitbreakMaxMagDef", "className": "blue_column" },
+						{ "data": "LimitbreakMaxLuck", "className": "blue_column" },
+						{ "data": "MaxHp", "className": "red_column" },
+						{ "data": "MaxMp", "className": "red_column" },
+						{ "data": "MaxPhyAtk", "className": "red_column" },
+						{ "data": "MaxPhyDef", "className": "red_column" },
+						{ "data": "MaxMagAtk", "className": "red_column" },
+						{ "data": "MaxMagDef", "className": "red_column" },
+						{ "data": "MaxLuck", "className": "red_column" },
 						{ "data": "MinHp" },
 						{ "data": "MinMp" },
 						{ "data": "MinPhyAtk" },
@@ -195,6 +204,7 @@
 			</select>
 		</span>
 		<br/><br/>
+		<div>The 6* stats include the mana board bonuses, but not the other stats, LB should be 5* Lv99 ?</div><br/>
 		<table id="myTable" class="display">
 			<input type="checkbox" name="regex_search" id="regex_search"></input>
 			<label for="regex_search">Use regex in column filters instead of smart search (allow things like "Ifrit|Shiva")</label>
@@ -211,6 +221,13 @@
 					<th>[Gender]</th>
 					<th>[Series]</th>
 					<th>Recovery<br/>Stat</th>
+					<th>6*<br/>HP</th>
+					<th>6*<br/>MP</th>
+					<th>6*<br/>PhyAtk</th>
+					<th>6*<br/>PhyDef</th>
+					<th>6*<br/>MagAtk</th>
+					<th>6*<br/>MagDef</th>
+					<th>6*<br/>Luck</th>
 					<th>LB<br/>HP</th>
 					<th>LB<br/>MP</th>
 					<th>LB<br/>PhyAtk</th>
